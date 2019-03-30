@@ -1,0 +1,44 @@
+\documentclass{article}
+\title{Knowledge Based Systems Solution SucheA_A1}
+\author{Laura Khaze \amp Erik Zeiske}
+\date{March 2019}
+\begin{document}
+\section{Assumption}
+\begin{itemize}
+    \item It is possible to move through a field without picking up the component it is holding.
+    \item When a component was picked up it can not be laid down again.
+\end{itemize}
+\section{Definitions}
+\begin{itemize}
+    \item{Player} The individual that moves around (For visual speaking purposes)
+    \item{Land} One of L1, L2, L3
+    \item{Field} Is described by an x y position. It is part of exactly one Land or is water. It can either be empty or contain exactly one part
+    \item{Playground} All Fields in a $m x n$ grid
+    \item{Components} Has Type A,B,C. Of each type n>1 copies are laying scattered on the Playground
+    \item{State} \label{definition_state} Is a node of the graph to traverse with A* and is uniquely defined by the x and y position on the field and which Parts are already collected. This means that a state can be representet as $S(x,y,A,B,C)$ where $x$, $y$ state the x and y position of the associated field the player is currently on and $A, B, C$ weather he is holding the respective components. Thus $S(2,1,0,0,1)$ is the state on which the player is on field $(2,1)$ and holds only the component of Type C.
+\end{itemize}
+
+\section{Main}
+In order to map the problem to A* the following points have to be decided:
+\begin{itemize}
+    \item Development of an graph
+        \begin{itemize}
+            \item What state does a node describe
+            \item Set of terminating nodes
+        \end{itemize}
+    \item Distance function for the graph $k(S_1, S_2)$
+    \item Estimation function $h(S)$
+\end{itemize}
+
+\subsection{Define graph}
+In order to define a graph first of all a node (i.e. a state) has to be defined: As the player can only be distinctly on a field it is only logical to associate the state to a field and a transition between the states to the movement between to fields. Also the player state should contain which components he has collected yet. See \ref{definition_state} for an exact definition. As the player can move only right, left, up and down the possible changes from a movement point of view are:
+% TODO add picture with x,y as coordinates and x+-1 / y+-1 respectively.
+These movements might be blocked if the neighboring field are out of the playground, the destination field is water or the player tries to cross the border between L1 and L2 (both directions).
+As a move between two fields takes 1 minute every movement state transition is associated with $k(S_1, S_2) = 1$.
+As there is no downside to automatically picking up the component A and C every move to a field holding one of these components will move the player to a state where the respective component is held. In case of a field containing B the move to this field will not automatically pick up the component as it might block movement late on, thus on a field holding B the it is possible to explicitly pick up the component with no cost to the movement ($k(S(x,y,A,0,C), S(x,y,A,1,C)) = 0$).
+
+All states of the form $S(x,y,1,1,1)$ are terminating states.
+
+\subsection{Estimation function $h(S)$}
+The goal is to collect all components. Thus the shortest possible finishing move is to go through all missing components taking the shortest path between them. The path between two components can be estimated by the Manhattan distance as only horizontal and vertical moves are possible. For example if the player is already holding A and B the estimation has to take the Manhattan distance to all C components and return the minimum of these distances. Respectfully if no components are held by the player all possible orders of going through the components have to be associated with there respective distances and the shortest is the estimate for the state. As the distance between the components is not changing the estimation from the components fields can be cached (This is further explained in the implementation part). %TODO add reference
+\end{document}
