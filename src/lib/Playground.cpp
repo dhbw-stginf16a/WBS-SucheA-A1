@@ -33,6 +33,7 @@ Playground::Playground(const std::string &inputFile, unsigned int length, unsign
         this->field[a.getPositionInOneD(length)] |= shiftArtefact(a.getType());
         lines = lines.substr(lines.find('\n') + 1, std::string::npos);
     }
+    fillPathCache();
 }
 
 /**
@@ -55,4 +56,20 @@ std::string Playground::printField(const std::string &delimField, const std::str
 
 Playground::~Playground() {
     delete this->field;
+}
+
+void Playground::fillPathCache() {
+    for(char level = static_cast<char>(Helper::countBits(ARTEFACT_BYTE_MASK) - 2); level >= 0; level--) {
+        for(Artefact& artefact : this->artefacts) {
+            artefact.fillAssumptionToCollect(this->artefacts, level);
+        }
+    }
+}
+
+unsigned int Playground::getEstimate(unsigned int x, unsigned int y, char artifacts) const {
+    unsigned int min = std::numeric_limits<unsigned int>::max();
+    for(const Artefact &artifact : this->artefacts) {
+        min = std::min(min, artifact.getAssumptionToCollect(artifacts, x, y));
+    }
+    return min;
 }
