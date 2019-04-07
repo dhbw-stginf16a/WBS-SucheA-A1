@@ -45,6 +45,11 @@ unsigned int Artefact::getAssumptionToCollect(char artefactsHolding) const{
     }
     vw &= 3;
     return this->assumptionToCollect[vw];*/
+#ifdef _DEBUG
+    if(this->assumptionToCollect[artefactsHolding] == std::numeric_limits<unsigned int>::max()) {
+        throw std::runtime_error("foo");
+    }
+#endif
     return this->assumptionToCollect[artefactsHolding];
 }
 
@@ -59,12 +64,12 @@ unsigned int Artefact::getAssumptionToCollect(char artefactsHolding, unsigned in
  */
 void Artefact::fillAssumptionToCollect(std::vector<Artefact>& otherArtifacts, char level) {
     for(char x = 0; x < ARTEFACT_BYTE_MASK + 1; x++) {
-        if(Helper::countBits(x & ~type) != level) continue;
         for(const Artefact& other : otherArtifacts) {
             if(other.type == this->type) continue;
+            if(Helper::countBits(x | this->type | other.type) != level + 2) continue;
             this->assumptionToCollect[x] = std::min(
                     this->assumptionToCollect[x],
-                    other.getAssumptionToCollect(x | type) + Helper::manhattanDistance(this->x, this->y, other.x, other.y));
+                    other.getAssumptionToCollect(x | this->type | other.type) + Helper::manhattanDistance(this->x, this->y, other.x, other.y));
         }
     }
 }
