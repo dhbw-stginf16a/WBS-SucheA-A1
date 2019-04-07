@@ -8,11 +8,11 @@ Artefact::Artefact(std::string line) {
     this->x = std::stoul(line, nullptr, 10);
     this->y = std::stoul(line.substr(line.find(';') + 1, std::string::npos), nullptr, 10);
 
-    for (unsigned int &x : this->assumptionToCollect) {
+    for (unsigned int &x : this->estimationCache) {
         x = std::numeric_limits<unsigned int>::max();
     }
-    this->assumptionToCollect[ARTEFACT_BYTE_MASK] = 0;
-    this->assumptionToCollect[ARTEFACT_BYTE_MASK & ~type] = 0;
+    this->estimationCache[ARTEFACT_BYTE_MASK] = 0;
+    this->estimationCache[ARTEFACT_BYTE_MASK & ~type] = 0;
 }
 
 unsigned int Artefact::getPositionInOneD(unsigned int len) const{
@@ -23,7 +23,7 @@ char Artefact::getType() const{
     return type;
 }
 
-unsigned int Artefact::getAssumptionToCollect(char artefactsHolding) const{
+unsigned int Artefact::getEstimate(char artefactsHolding) const{
     // Stuff that would convert from abc to vw notation
     /*char bytemask = type;
     char toShift = static_cast<char>(0xff);
@@ -32,7 +32,7 @@ unsigned int Artefact::getAssumptionToCollect(char artefactsHolding) const{
         bytemask = static_cast<char>((bytemask >> 1) & 0x7f); // keep bytemask at one bit with
     }
     artefactsHolding = (artefactsHolding & toShift) >> 1 | (artefactsHolding | (~toShift & ~type));
-    return this->assumptionToCollect[artefactsHolding];*/
+    return this->estimationCache[artefactsHolding];*/
     /*artefactsHolding &= ~type;
     char vw;
     if(type == 1) {
@@ -44,17 +44,17 @@ unsigned int Artefact::getAssumptionToCollect(char artefactsHolding) const{
         }
     }
     vw &= 3;
-    return this->assumptionToCollect[vw];*/
+    return this->estimationCache[vw];*/
 #ifdef _DEBUG
-    if(this->assumptionToCollect[artefactsHolding] == std::numeric_limits<unsigned int>::max()) {
-        throw std::runtime_error("foo");
+    if(this->estimationCache[artefactsHolding] == std::numeric_limits<unsigned int>::max()) {
+        throw std::runtime_error("Try to access cache that is not yet set");
     }
 #endif
-    return this->assumptionToCollect[artefactsHolding];
+    return this->estimationCache[artefactsHolding];
 }
 
-unsigned int Artefact::getAssumptionToCollect(char artefactsHolding, unsigned int x, unsigned int y) const {
-    return this->assumptionToCollect[artefactsHolding] + Helper::manhattanDistance(x, y, this->x, this->y);
+unsigned int Artefact::getEstimate(char artefactsHolding, unsigned int x, unsigned int y) const {
+    return this->estimationCache[artefactsHolding] + Helper::manhattanDistance(x, y, this->x, this->y);
 }
 
 /**
@@ -67,9 +67,9 @@ void Artefact::fillAssumptionToCollect(std::vector<Artefact>& otherArtifacts, ch
         for(const Artefact& other : otherArtifacts) {
             if(other.type == this->type) continue;
             if(Helper::countBits(x | this->type | other.type) != level + 2) continue;
-            this->assumptionToCollect[x] = std::min(
-                    this->assumptionToCollect[x],
-                    other.getAssumptionToCollect(x | this->type | other.type) + Helper::manhattanDistance(this->x, this->y, other.x, other.y));
+            this->estimationCache[x] = std::min(
+                    this->estimationCache[x],
+                    other.getEstimate(x | this->type | other.type) + Helper::manhattanDistance(this->x, this->y, other.x, other.y));
         }
     }
 }

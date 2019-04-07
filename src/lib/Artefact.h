@@ -15,15 +15,15 @@ public:
     Artefact(std::string line);
     unsigned int getPositionInOneD(unsigned int len) const;
     char getType() const;
-    unsigned int getAssumptionToCollect(char artefactsHolding) const;
-    unsigned int getAssumptionToCollect(char artefactsHolding, unsigned int x, unsigned int y) const;
+    unsigned int getEstimate(char artefactsHolding) const;
+    unsigned int getEstimate(char artefactsHolding, unsigned int x, unsigned int y) const;
     void fillAssumptionToCollect(std::vector<Artefact>& otherArtifacts, char level);
 private:
     unsigned int x, y;
     // Should only needs states (w, v) are the other artefacts (0, 1), (1, 0), (0, 0)
     // Other states are not needed as they can be deducted from the above state
     // But it would introduce a lot of complexity to convert abc to vw thus more storage is traded for cleaner code
-    unsigned int assumptionToCollect[ARTEFACT_BYTE_MASK + 1];
+    unsigned int estimationCache[ARTEFACT_BYTE_MASK + 1];
     char type;
 };
 

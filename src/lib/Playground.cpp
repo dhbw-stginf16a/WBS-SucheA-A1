@@ -69,7 +69,7 @@ void Playground::fillPathCache() {
 unsigned int Playground::getEstimate(unsigned int x, unsigned int y, char artifacts) const {
     unsigned int min = std::numeric_limits<unsigned int>::max();
     for(const Artefact &artifact : this->artefacts) {
-        min = std::min(min, artifact.getAssumptionToCollect(artifacts, x, y));
+        min = std::min(min, artifact.getEstimate(artifacts, x, y));
     }
     return min;
 }
