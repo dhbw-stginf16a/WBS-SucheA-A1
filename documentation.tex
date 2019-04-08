@@ -1,22 +1,57 @@
 \documentclass{article}
-\title{Knowledge Based Systems Solution SucheA_A1}
-\author{Laura Khaze \amp Erik Zeiske}
-\date{March 2019}
+\title{Knowledge Based Systems Solution Search A\_A1}
+\author{Laura Khaze \& Erik Zeiske}
+\date{10 April 2019}
+\makeatletter
 \begin{document}
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+ 
+        \Huge
+        \textbf{\@title}
+ 
+        \vspace{0.5cm}
+        \LARGE
+        A documentation outlining the implementation of the problem search A
+ 
+        \vspace{1.5cm}
+ 
+        \textbf{\@author}
+ 
+        \vfill
+ 
+        %A documentation outlining the implementation of the problem\\
+        Applied Computer Science
+ 
+        %\vspace{0.8cm}
+ 
+        %\Large
+        INF 16A\\
+        DHBW Stuttgart\\
+        \@date
+ 
+    \end{center}
+\end{titlepage}
+\tableofcontents
+\newpage
+\section{Definitions}
+\begin{description}
+    \item{\textit{Player}} The individual that moves around in order to find all components of the locket (For visual speaking purposes)
+    \item{\textit{Land}} There are three different lands. A land is either of type L1, L2 or L3.
+    \item{\textit{Field}} A field is described by an x y position. It is part of exactly one Land or is water. It can either be empty or contain exactly one component.
+    \item{\textit{Playground}} All fields arranged in a $m x n$ grid
+    \item{\textit{Components}} A component is either of type A,B or C. At least one copy ($n \geq \ $1) of each type is laying scattered on one field of the playground.
+    \item{\textit{State}} \label{definition_state} Is a node of the graph to traverse with A* and is uniquely defined by the x and y position on the field and which components are already collected. This means that a state can be representet as $S(x,y,A,B,C)$ where $x$, $y$ state the x and y position of the associated field the player is currently on and $A, B, C$ weather he is holding the respective components. Thus $S(2,1,0,0,1)$ is the state on which the player is on field $(2,1)$ and holds only the component of Type C.
+\end{description}
+
 \section{Assumption}
+In order to implement a solution to the given problem \textit{Search A} it is necesarry to make some assumptions about the details of the problem formulation. These assumption are listed below:
 \begin{itemize}
-    \item It is possible to move through a field without picking up the component it is holding.
+    \item It is possible for a player to move through a field without picking up the component it is holding. 
     \item When a component was picked up it can not be laid down again.
 \end{itemize}
-\section{Definitions}
-\begin{itemize}
-    \item{Player} The individual that moves around (For visual speaking purposes)
-    \item{Land} One of L1, L2, L3
-    \item{Field} Is described by an x y position. It is part of exactly one Land or is water. It can either be empty or contain exactly one part
-    \item{Playground} All Fields in a $m x n$ grid
-    \item{Components} Has Type A,B,C. Of each type n>1 copies are laying scattered on the Playground
-    \item{State} \label{definition_state} Is a node of the graph to traverse with A* and is uniquely defined by the x and y position on the field and which Parts are already collected. This means that a state can be representet as $S(x,y,A,B,C)$ where $x$, $y$ state the x and y position of the associated field the player is currently on and $A, B, C$ weather he is holding the respective components. Thus $S(2,1,0,0,1)$ is the state on which the player is on field $(2,1)$ and holds only the component of Type C.
-\end{itemize}
+
 
 \section{Main}
 In order to map the problem to A* the following points have to be decided:
