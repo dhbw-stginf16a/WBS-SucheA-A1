@@ -7,10 +7,11 @@ class State;
 class State {
 public:
     State(const Playground& playground, unsigned int x, unsigned int y, char artifacts, unsigned int g);
-    State(unsigned int x, unsigned int y, char artifacts, unsigned int g);
     bool isFinalState() const;
     unsigned int getPositionInOneD(unsigned int len) const;
     unsigned int getFullWeight();
+    bool isSame(const State & other);
+    void copyTo(State * other) const;
 private:
     const Playground& playground;
     unsigned int x, y;

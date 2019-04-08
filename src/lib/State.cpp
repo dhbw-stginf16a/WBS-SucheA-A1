@@ -39,3 +39,23 @@ unsigned int State::getFullWeight() {
     return g + h;
 }
 
+/**
+ * Returns if this state is at the same position and artifact as the other
+ * @param other state to compare to
+ * @return True if same
+ */
+bool State::isSame(const State &other) {
+    return this->x == other.x && this->y == other.y && this->artifacts == other.artifacts;
+}
+
+/**
+ * Copy the values of h and g to the other state.
+ * @param other pointer to the state to copy to.
+ */
+void State::copyTo(State *other) const{
+#ifdef _DEBUG
+    if(!this->fetchedH) throw std::runtime_error("This shouldn't be called on this kind of node");
+#endif
+    other->g = this->g;
+    other->h = this->h;
+}
