@@ -100,6 +100,40 @@ int Playground::getEstimate(int x, int y, char artifacts) const {
 }
 
 /**
+ * Calculate a path from the given start position collecting all artifacts
+ * @param x
+ * @param y
+ * @return TBD
+ */
+void Playground::calculatePath(int x, int y) {
+#ifdef _DEBUG
+    if(!this->inField(x, y)) throw std::runtime_error("You started outside the field");
+    if(this->isWater(x, y)) throw std::runtime_error("You started in water");
+#endif
+    std::vector<State> allKnownStates;
+    PriorityQueue queue; // Closed list fehlt... TODO
+
+    char artifactOnStart = this->getArtifactOnField(x, y);
+    //Don't auto pick up B on the start field
+    if(hasB(artifactOnStart)) {
+        allKnownStates.emplace_back(*this, x, y, 0, 0);
+    } else {
+        allKnownStates.emplace_back(*this, x, y, artifactOnStart, 0);
+    }
+    queue.addState(allKnownStates.back());
+
+    while(!queue.isEmpty()) {
+        State currentState = queue.pop();
+        if(currentState.isFinalState()) {
+            throw std::runtime_error("Found a path to lazy to print it :)");
+        }
+
+        currentState.expand(allKnownStates, queue);
+    }
+    throw std::runtime_error("No Path Found");
+}
+
+/**
  * Get the artifact mask on this specific field
  * @param x x-Cord
  * @param y y-Cord
