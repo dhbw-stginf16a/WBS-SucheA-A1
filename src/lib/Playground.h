@@ -1,15 +1,6 @@
 #ifndef SRC_PLAYGROUND_H
 #define SRC_PLAYGROUND_H
 
-#define LAND_BYTE_MASK 0x3
-#define ARTIFACT_BYTE_MASK 0x7
-#define ARTIFACT_SHIFT_AMOUNT 2
-#define getArtifact(x) (static_cast<char>((x >> ARTIFACT_SHIFT_AMOUNT) & 7))
-#define shiftArtifact(x) ((x << ARTIFACT_SHIFT_AMOUNT))
-#define getLand(x) (static_cast<char>(x & LAND_BYTE_MASK))
-#define hasB(x) ((x & 2) == 2)
-// Transforms two-dimensional coordinates to one dimensional data
-#define tdtod(x, y, len) ((y * len) + x)
 
 class Playground;
 #include "Artifact.h"
