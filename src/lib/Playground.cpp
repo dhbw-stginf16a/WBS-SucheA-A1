@@ -66,6 +66,23 @@ std::string Playground::printField(const std::string &delimField, const std::str
     return output.str();
 }
 
+/**
+ * Prints the field with one cell beeing X(Y) with X being the Land and Y beeing the Artifact if any
+ * @param delimField
+ * @param delimLine
+ * @return
+ */
+std::string Playground::printFieldFancy(const std::string &delimField, const std::string &delimLine) {
+    std::stringstream output ("");
+    for (int y = 0; y < height; y++) {
+        for(int x = 0; x < width - 1; x++) {
+            output << static_cast<char>('0' + this->getLandOnField(x, y)) << "(" << Helper::printArtifact(this->getArtifactOnField(x, y)) << ");";
+        }
+        output << static_cast<char>('0' + this->getLandOnField(width - 1, y)) << "("<< Helper::printArtifact(this->getArtifactOnField(width - 1, y)) <<")" << "\n";
+    }
+    return output.str();
+}
+
 Playground::~Playground() {
     delete this->field;
 }
@@ -106,10 +123,8 @@ int Playground::getEstimate(int x, int y, char artifacts) const {
  * @return TBD
  */
 void Playground::calculatePath(int x, int y) {
-#ifdef _DEBUG
     if(!this->inField(x, y)) throw std::runtime_error("You started outside the field");
     if(this->isWater(x, y)) throw std::runtime_error("You started in water");
-#endif
     std::vector<State> closedList;
     PriorityQueue openList; // Closed list fehlt... TODO
 

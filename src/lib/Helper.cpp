@@ -24,10 +24,30 @@ int Helper::manhattanDistance(int x1, int y1, int x2, int y2) {
     return static_cast<int>(abs(x1 - x2) + abs(y1 - y2));
 }
 
-std::string Helper::printString(char x, char numberOfBits) {
+/**
+ * Prints the Artifacts in human readable
+ * @param x the
+ * @param numberOfBits the number of bits to print
+ * @return string with 0 and 1 representing the number
+ */
+std::string Helper::printArtifactString(char x, char numberOfBits) {
     char buffer[numberOfBits];
     for(char i = 0; i < numberOfBits; i++) {
-        buffer[i] = ((1 << i) & x)? '1': '0';
+        buffer[i] = ((1 << i) & x)? 'A' + i: '_';
     }
+    int a = 0;
     return std::string(buffer, static_cast<unsigned int>(numberOfBits));
+}
+
+/**
+ * Prints the artifact as A, B, C or ' ' if no artifact is present
+ * @param x the bitmask of the artifact
+ * @return a character to represent the artifact
+ */
+char Helper::printArtifact(char x) {
+    if(!(x & ARTIFACT_BYTE_MASK)) return ' ';
+    for(char i = 0; i < 8; i++) {
+        if((1 << i) & x) return 'A' + i;
+    }
+    return ' ';
 }

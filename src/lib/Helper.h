@@ -15,8 +15,9 @@
 
 namespace Helper {
     char countBits(char x);
-    std::string printString(char x, char numberOfBits);
+    std::string printArtifactString(char x, char numberOfBits);
     int manhattanDistance(int x1, int y1, int x2, int y2);
+    char printArtifact(char x);
 };
 
 

@@ -22,6 +22,7 @@ public:
     Playground(const std::string& inputFile, int width, int height, const std::string& artifact);
     ~Playground();
     std::string printField(const std::string& delimField, const std::string& delimLine, char bitmask = 0xff);
+    std::string printFieldFancy(const std::string& delimField, const std::string& delimLine);
     void calculatePath(int x, int y);
     int getEstimate(int x, int y, char artifacts) const;
     char getArtifactOnField(int x, int y) const;

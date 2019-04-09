@@ -11,6 +11,9 @@ int main(int argc, char *argv[]) {
 
     Playground playground(argv[3], length, height, argv[4]);
     std::string test = playground.printField(";", "\n");
+    std::cout << "Here is the read playing field:\n";
+    std::cout << playground.printFieldFancy(";", "\n");
+    std::cout << "Start calculating shortest path.\n\n\n" << std::endl;
     playground.calculatePath(x, y);
     int a = 0;
 }
