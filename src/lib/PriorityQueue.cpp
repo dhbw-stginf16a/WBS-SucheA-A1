@@ -42,9 +42,10 @@ State* PriorityQueue::pop() {
 /**
  * Update the state equal to this one to reflect the shorter distance (This is a hard a requirenment). This changes the order or the queue
  * @param from The state to update to
+ * @return True if a state was updated False if no state to update was found
  */
 bool PriorityQueue::updateStateIfBetter(const State &from) {
-    for (unsigned int i = 1; i < heap.size(); i++) {
+    for (int i = 1; i < heap.size(); i++) {
         if (heap[i]->isSame(from)) {
             from.copyToIfBetter(heap[i]);
             while (i > 1) {
@@ -67,7 +68,7 @@ bool PriorityQueue::updateStateIfBetter(const State &from) {
  */
 void PriorityQueue::addState(State * toAdd) {
     this->heap.push_back(toAdd);
-    unsigned int i = heap.size() - 1;
+    int i = heap.size() - 1;
     while( i > 1) {
         if(toAdd->getFullWeight() < heap[i/2]->getFullWeight()) {
             std::swap(heap[i], heap[i/2]);
@@ -83,6 +84,19 @@ void PriorityQueue::addState(State * toAdd) {
  */
 bool PriorityQueue::isEmpty() const {
     return this->heap.size() > 1; // First element is normally size of heap (not used here...)
+}
+
+/**
+ * Add State if it is better or unknown to the priority queue
+ * @param toAdd The State to add
+ * @return True on add, False if known state was updated
+ */
+bool PriorityQueue::addStateIfBetter(State *toAdd) {
+    if(this->updateStateIfBetter(*toAdd)) {
+        return false;
+    }
+    this->addState(toAdd);
+    return true;
 }
 
 
