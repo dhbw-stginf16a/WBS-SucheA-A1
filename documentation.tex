@@ -1,4 +1,5 @@
 \documentclass{article}
+\usepackage[english]{babel}
 \title{Knowledge Based Systems Solution Search A\_A1}
 \author{Laura Khaze \& Erik Zeiske}
 \date{10 April 2019}
@@ -35,23 +36,42 @@
 \end{titlepage}
 \tableofcontents
 \newpage
+\section{Problem Formulation}
+The goal of the game \textit{Schatzsuche - das dreiteilige Medaillon} is to compose a locket. The locket consists of three different components of type A, B and C. To compose the locket a player needs one component of each type. \\
+The components of the locket are spread over the playground which consists of three different lands and some water areas. Within the playground a player can move either left, right, up or down as long as he does not enter a water area. Moreover it is not possible for the player to cross the boarder between land L1 and L2 if a component of type B is in his possession. \\
+To solve the given problem, find all components and win the game the A* algorithm is implemented. \\
+
 \section{Definitions}
+In the following come terminologies are defined to create a common basis for this documentation.
 \begin{description}
-    \item{\textit{Player}} The individual that moves around in order to find all components of the locket (For visual speaking purposes)
-    \item{\textit{Land}} There are three different lands. A land is either of type L1, L2 or L3.
-    \item{\textit{Field}} A field is described by an x y position. It is part of exactly one Land or is water. It can either be empty or contain exactly one component.
-    \item{\textit{Playground}} All fields arranged in a $m x n$ grid
-    \item{\textit{Components}} A component is either of type A,B or C. At least one copy ($n \geq \ $1) of each type is laying scattered on one field of the playground.
-    \item{\textit{State}} \label{definition_state} Is a node of the graph to traverse with A* and is uniquely defined by the x and y position on the field and which components are already collected. This means that a state can be representet as $S(x,y,A,B,C)$ where $x$, $y$ state the x and y position of the associated field the player is currently on and $A, B, C$ weather he is holding the respective components. Thus $S(2,1,0,0,1)$ is the state on which the player is on field $(2,1)$ and holds only the component of Type C.
+    \item{\textbf{Player}} The individual that moves around in order to find all components of the locket (For visual speaking purposes)
+    \item{\textbf{Land}} There are three different lands. A land is either of type L1, L2 or L3.
+    \item{\textbf{Field}} A field is described by an x y position. It is part of exactly one Land or is water. It can either be empty or contain exactly one component.
+    \item{\textbf{Playground}} All fields arranged in a $m x n$ grid
+    \item{\textbf{Components}} A component is either of type A,B or C. At least one copy ($n \geq \ $1) of each type is laying scattered on one field of the playground.
+    \item{\textbf{State}} \label{definition_state} Is a node of the graph to traverse with A* and is uniquely defined by the x and y position on the field and which components are already collected. 
+    This means that a state can be represented as $S(x,y,A,B,C)$ where $x$, $y$ state the x and y coordinates of the associated field the player is currently on and $A, B, C$ weather he is holding the respective components. Thus $S(2,1,0,0,1)$ is the state on which the player is on field $(2,1)$ and holds only the component of Type C.
 \end{description}
 
-\section{Assumption}
-In order to implement a solution to the given problem \textit{Search A} it is necesarry to make some assumptions about the details of the problem formulation. These assumption are listed below:
+\section{Assumptions}
+In order to implement a solution to the given problem \textit{Search A} it is necessary to make some assumptions about the details of the problem formulation. These assumption are:
 \begin{itemize}
     \item It is possible for a player to move through a field without picking up the component it is holding. 
     \item When a component was picked up it can not be laid down again.
+    \item Since there is no added value it is not possible for a player to possess two components of the same type.
 \end{itemize}
 
+\section{Implementation Parameters}
+The implementation requires six inputs and returns the best route as an output.\\
+Example input: \textit{20 20 "data/spielfeld\_1.csv" "data/S11.txt" 0 0}\\
+Example output: \textit{(0,0) - (0,1)}
+\begin{description}
+    \item{\textbf{Input playground size}} The first two input parameters \textit{m n} define the size of the playground $m x n$ grid
+    \item{\textbf{Input playground}} The third input parameter is a csv file with the playground itself. Thereby each land type is represented by one number: L1 is represented by a 1, L2 by 2, L3 by 3 and water by 0. If the given playground is bigger than the size given by the parameters \textit{m n} only size \textit{m n} is realized.
+    \item{\textbf{Input components}} The fourth input parameter is a text file which contains the coordinates of the components in the format \textit{Type;X;Y}.
+    \item{\textbf{Input start position player}} The fifth and sixth parameter set the start coordinates of the player. If the start position of the player is outside of the playground or on a water field an error message is thrown.
+    \item{\textbf{Output route}} The program returns the best route to collect one component of each type as an output. The single fields (x,y coordinates) of the route are printed in the correct order.
+\end{description}
 
 \section{Main}
 In order to map the problem to A* the following points have to be decided:
@@ -76,4 +96,9 @@ All states of the form $S(x,y,1,1,1)$ are terminating states.
 
 \subsection{Estimation function $h(S)$}
 The goal is to collect all components. Thus the shortest possible finishing move is to go through all missing components taking the shortest path between them. The path between two components can be estimated by the Manhattan distance as only horizontal and vertical moves are possible. For example if the player is already holding A and B the estimation has to take the Manhattan distance to all C components and return the minimum of these distances. Respectfully if no components are held by the player all possible orders of going through the components have to be associated with there respective distances and the shortest is the estimate for the state. As the distance between the components is not changing the estimation from the components fields can be cached (This is further explained in the implementation part). %TODO add reference
+
+
+\section{Testing}
+
+\section{Evaluation and possible Improvement}
 \end{document}
