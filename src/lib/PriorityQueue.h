@@ -9,13 +9,13 @@ class PriorityQueue;
 class PriorityQueue {
 public:
     PriorityQueue();
-    State * pop();
+    State pop();
     bool updateStateIfBetter(const State &from);
-    void addState(State * toAdd);
-    bool addStateIfBetter(State * toAdd);
+    void addState(State& toAdd);
+    bool addStateIfBetter(State& toAdd);
     bool isEmpty() const;
 private:
-    std::vector<State*> heap;
+    std::vector<State> heap;
 };
 
 
