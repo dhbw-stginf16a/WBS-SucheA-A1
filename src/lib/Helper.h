@@ -18,6 +18,7 @@ namespace Helper {
     std::string printArtifactString(char x, char numberOfBits);
     int manhattanDistance(int x1, int y1, int x2, int y2);
     char printArtifact(char x);
+    std::string getColorForLand(char x);
 };
 
 

@@ -51,3 +51,13 @@ char Helper::printArtifact(char x) {
     }
     return ' ';
 }
+
+/**
+ * REturns the terminalcomand code to switch to this color
+ * @param x 0, 1, 2, 3 (land) or 4 for turning it black again
+ * @return
+ */
+std::string Helper::getColorForLand(char x) {
+    char buffer[] = {'\033', '[', '3', static_cast<char>('4' - x), 'm'};
+    return std::string(buffer, 5);
+}

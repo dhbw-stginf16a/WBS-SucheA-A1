@@ -70,13 +70,14 @@ std::string Playground::printField(const std::string &delimField, const std::str
  * Prints the field with one cell beeing X(Y) with X being the Land and Y beeing the Artifact if any
  * @param delimField
  * @param delimLine
+ * @param color True if colored output should be given
  * @return
  */
-std::string Playground::printFieldFancy(const std::string &delimField, const std::string &delimLine) {
+std::string Playground::printFieldFancy(const std::string &delimField, const std::string &delimLine, bool color) {
     std::stringstream output ("");
     for (int y = 0; y < height; y++) {
         for(int x = 0; x < width - 1; x++) {
-            output << static_cast<char>('0' + this->getLandOnField(x, y)) << "(" << Helper::printArtifact(this->getArtifactOnField(x, y)) << ");";
+            output << (color?Helper::getColorForLand(this->getLandOnField(x, y)):"") << static_cast<char>('0' + this->getLandOnField(x, y)) << "(" << Helper::printArtifact(this->getArtifactOnField(x, y)) << ");";
         }
         output << static_cast<char>('0' + this->getLandOnField(width - 1, y)) << "("<< Helper::printArtifact(this->getArtifactOnField(width - 1, y)) <<")" << "\n";
     }
