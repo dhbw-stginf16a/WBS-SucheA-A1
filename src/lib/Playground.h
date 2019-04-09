@@ -25,6 +25,9 @@ public:
     int getEstimate(int x, int y, char artifacts) const;
     char getArtifactOnField(int x, int y) const;
     char getLandOnField(int x, int y) const;
+    bool inField(int x, int y) const;
+    bool isWater(int x, int y) const;
+    bool isMoveAble(int xFrom, int yFrom, int xTo, int yTo, char artifact) const;
 private:
     void fillPathCache();
     char * field = nullptr;

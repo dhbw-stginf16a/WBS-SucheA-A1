@@ -89,9 +89,80 @@ void Playground::fillPathCache() {
  * @return The estimate till termination in moves needed
  */
 int Playground::getEstimate(int x, int y, char artifacts) const {
+#ifdef _DEBUG
+    if(!this->inField(x, y)) throw std::runtime_error("Not in field");
+#endif
     int min = std::numeric_limits<int>::max();
     for(const Artifact &artifact : this->artifacts) {
         min = std::min(min, artifact.getEstimate(artifacts, x, y));
     }
     return min;
+}
+
+/**
+ * Get the artifact mask on this specific field
+ * @param x x-Cord
+ * @param y y-Cord
+ * @return The bitmask of the artifact
+ */
+char Playground::getArtifactOnField(int x, int y) const {
+#ifdef _DEBUG
+    if(!this->inField(x, y)) throw std::runtime_error("Not in field");
+#endif
+    return getArtifact(this->field[tdtod(x, y, width)]);
+}
+
+/**
+ * Get the land ( or water) on this specific field
+ * @param x x-Cord
+ * @param y y-Cord
+ * @return The number of the land
+ */
+char Playground::getLandOnField(int x, int y) const {
+#ifdef _DEBUG
+    if(!this->inField(x, y)) throw std::runtime_error("Not in field");
+#endif
+    return getLand(this->field[tdtod(x, y, width)]);
+}
+
+/**
+ * Determine if the requested cords are in field
+ * @param x x-Cord
+ * @param y y-Cord
+ * @return True if in field
+ */
+bool Playground::inField(int x, int y) const{
+    return x >= 0 && y >=0 && x < width && y < height;
+}
+
+/**
+ * Determine if the requested cords are water
+ * @param x x-Cord
+ * @param y y-Cord
+ * @return True if water
+ */
+bool Playground::isWater(int x, int y) const {
+#ifdef _DEBUG
+    if(!this->inField(x, y)) throw std::runtime_error("Not in field");
+#endif
+    return this->getLandOnField(x, y) == 0;
+}
+
+/**
+ * Determine if it is possible to move from from to to with artifact holding
+ * @param xFrom
+ * @param yFrom
+ * @param xTo
+ * @param yTo
+ * @param artifact
+ * @return true if move is possible
+ */
+bool Playground::isMoveAble(int xFrom, int yFrom, int xTo, int yTo, char artifact) const {
+    if(!this->inField(xTo, yTo)) return false;
+    if(!this->inField(xFrom, yFrom)) return false;
+    if(!this->isWater(xTo, yTo)) return false;
+    if(hasB(artifact)) {
+        return 0 != this->getLandOnField(xTo, yTo) & this->getLandOnField(xFrom, yFrom);
+    }
+    return true;
 }
