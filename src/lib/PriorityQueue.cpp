@@ -18,8 +18,13 @@ State* PriorityQueue::pop() {
     heap.pop_back();
     while(i * 2 < heap.size()) {
         if(heap[i]->getFullWeight() > heap[i*2]->getFullWeight()) {
-            std::swap(heap[i], heap[i*2]);
-            i *= 2;
+            if(i * 2 + 1 < heap.size() && heap[i*2]->getFullWeight() > heap[i*2 + 1]->getFullWeight()) {
+                std::swap(heap[i], heap[i*2 + 1]);
+                i = i * 2 + 1;
+            } else {
+                std::swap(heap[i], heap[i * 2]);
+                i *= 2;
+            }
             continue;
         }
         if(i * 2 + 1 < heap.size()) {
@@ -31,6 +36,7 @@ State* PriorityQueue::pop() {
         }
         break;
     }
+    return returnValue;
 }
 
 /**
