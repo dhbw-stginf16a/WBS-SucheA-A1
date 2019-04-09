@@ -10,7 +10,7 @@ class PriorityQueue {
 public:
     PriorityQueue();
     State * pop();
-    bool updateState(const State& from);
+    bool updateStateIfBetter(const State &from);
     void addState(State * toAdd);
     bool isEmpty() const;
 private:

@@ -8,8 +8,18 @@
  * @param artifacts Bitmask representing which artifacts are picked up already
  * @param g Movement cost already taken to get into this state
  */
-State::State(const Playground &playground, unsigned int x, unsigned int y, char artifacts, unsigned int g) : playground(playground), x(x), y(y), artifacts(artifacts), g(g) {}
+State::State(const Playground &playground, unsigned int x, unsigned int y, char artifacts, unsigned int g) : State(playground, x, y, artifacts, g, nullptr) {}
 
+/**
+ * Construct a valid state object
+ * @param playground Reference to the playground this state was generated on
+ * @param x Coordinate
+ * @param y Coordinate
+ * @param artifacts Bitmask representing which artifacts are picked up already
+ * @param g Movement cost already taken to get into this state
+ * @param previous The State to backtrack the path
+ */
+State::State(const Playground &playground, unsigned int x, unsigned int y, char artifacts, unsigned int g, State * previous) : playground(playground), x(x), y(y), artifacts(artifacts), g(g), previous(previous) {}
 /**
  * Get the one D coordinate of this artifact
  * @param width The width of the playground
@@ -49,13 +59,15 @@ bool State::isSame(const State &other) {
 }
 
 /**
- * Copy the values of h and g to the other state.
+ * Copy the values of h and g to the other state. If they are better than the other state
  * @param other pointer to the state to copy to.
  */
-void State::copyTo(State *other) const{
+void State::copyToIfBetter(State *other) const{
 #ifdef _DEBUG
     if(!this->fetchedH) throw std::runtime_error("This shouldn't be called on this kind of node");
 #endif
+    if(this->g <= other->g) return;
     other->g = this->g;
     other->h = this->h;
+    other->previous = this->previous;
 }

@@ -40,13 +40,13 @@ State* PriorityQueue::pop() {
 }
 
 /**
- * Update the state equal to this one to reflect the shorter distance. This changes the order or the queue
+ * Update the state equal to this one to reflect the shorter distance (This is a hard a requirenment). This changes the order or the queue
  * @param from The state to update to
  */
-bool PriorityQueue::updateState(const State &from) {
+bool PriorityQueue::updateStateIfBetter(const State &from) {
     for (unsigned int i = 1; i < heap.size(); i++) {
         if (heap[i]->isSame(from)) {
-            from.copyTo(heap[i]);
+            from.copyToIfBetter(heap[i]);
             while (i > 1) {
                 if (heap[i]->getFullWeight() < heap[i / 2]->getFullWeight()) {
                     std::swap(heap[i], heap[i / 2]);
