@@ -16,8 +16,8 @@ Artifact::Artifact(std::string line) {
     this->x = std::stoul(line, nullptr, 10);
     this->y = std::stoul(line.substr(line.find(';') + 1, std::string::npos), nullptr, 10);
 
-    for (unsigned int &x : this->estimationCache) {
-        x = std::numeric_limits<unsigned int>::max();
+    for (int &x : this->estimationCache) {
+        x = std::numeric_limits<int>::max();
     }
     this->estimationCache[ARTIFACT_BYTE_MASK] = 0;
     this->estimationCache[ARTIFACT_BYTE_MASK & ~type] = 0;
@@ -26,9 +26,9 @@ Artifact::Artifact(std::string line) {
 /**
  * Get the one D coordinate of this artifact
  * @param width The width of the playground
- * @return unsigned integer index
+ * @return integer index
  */
-unsigned int Artifact::getPositionInOneD(unsigned int width) const{
+int Artifact::getPositionInOneD(int width) const{
     return tdtod(x, y, width);
 }
 
@@ -41,9 +41,9 @@ char Artifact::getType() const{
  * @param artifactsHolding The artifacts holding in bit coded
  * @return Estimation of moves till termination
  */
-unsigned int Artifact::getEstimate(char artifactsHolding) const{
+int Artifact::getEstimate(char artifactsHolding) const{
 #ifdef _DEBUG
-    if(this->estimationCache[artifactsHolding] == std::numeric_limits<unsigned int>::max()) {
+    if(this->estimationCache[artifactsHolding] == std::numeric_limits<int>::max()) {
         throw std::runtime_error("Try to access cache that is not yet set");
     }
 #endif
@@ -57,7 +57,7 @@ unsigned int Artifact::getEstimate(char artifactsHolding) const{
  * @param y
  * @return Estimation of moves till termination
  */
-unsigned int Artifact::getEstimate(char artifactsHolding, unsigned int x, unsigned int y) const {
+int Artifact::getEstimate(char artifactsHolding, int x, int y) const {
     return this->getEstimate(artifactsHolding) + Helper::manhattanDistance(x, y, this->x, this->y);
 }
 

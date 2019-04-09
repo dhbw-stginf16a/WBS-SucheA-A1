@@ -20,6 +20,6 @@ char Helper::countBits(char x) {
  * @param y2 y-Cord of second point
  * @return The distance between these points in moves
  */
-unsigned int Helper::manhattanDistance(int x1, int y1, int x2, int y2) {
-    return static_cast<unsigned int>(abs(x1 - x2) + abs(y1 - y2));
+int Helper::manhattanDistance(int x1, int y1, int x2, int y2) {
+    return static_cast<int>(abs(x1 - x2) + abs(y1 - y2));
 }

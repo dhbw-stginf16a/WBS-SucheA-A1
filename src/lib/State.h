@@ -6,20 +6,20 @@ class State;
 
 class State {
 public:
-    State(const Playground& playground, unsigned int x, unsigned int y, char artifacts, unsigned int g);
-    State(const Playground& playground, unsigned int x, unsigned int y, char artifacts, unsigned int g, State * previous);
+    State(const Playground& playground, int x, int y, char artifacts, int g);
+    State(const Playground& playground, int x, int y, char artifacts, int g, State * previous);
     bool isFinalState() const;
-    unsigned int getPositionInOneD(unsigned int len) const;
-    unsigned int getFullWeight();
+    int getPositionInOneD(int len) const;
+    int getFullWeight();
     bool isSame(const State & other);
     void copyToIfBetter(State *other) const;
 private:
     const Playground& playground;
-    unsigned int x, y;
+    int x, y;
     bool fetchedH = false;
     // g - shortest known path to this state
     // h - estimation till end from this node
-    unsigned int g, h = 0;
+    int g, h = 0;
     char artifacts;
     State * previous;
 };

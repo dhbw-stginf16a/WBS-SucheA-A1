@@ -5,7 +5,7 @@
 
 namespace Helper {
     char countBits(char x);
-    unsigned int manhattanDistance(int x1, int y1, int x2, int y2);
+    int manhattanDistance(int x1, int y1, int x2, int y2);
 };
 
 
