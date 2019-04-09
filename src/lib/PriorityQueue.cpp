@@ -66,7 +66,7 @@ bool PriorityQueue::updateStateIfBetter(const State &from) {
  * Adds a state to the priority queue
  * @param toAdd The pointer to the state to add
  */
-void PriorityQueue::addState(State& toAdd) {
+void PriorityQueue::addState(const State& toAdd) {
     this->heap.push_back(toAdd);
     int i = heap.size() - 1;
     while( i > 1) {
@@ -83,7 +83,7 @@ void PriorityQueue::addState(State& toAdd) {
  * @return True if the queue is empty
  */
 bool PriorityQueue::isEmpty() const {
-    return this->heap.size() > 1; // First element is normally size of heap (not used here...)
+    return this->heap.size() <= 1; // First element is normally size of heap (not used here...)
 }
 
 /**

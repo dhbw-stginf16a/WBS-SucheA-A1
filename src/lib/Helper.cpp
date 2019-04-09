@@ -23,3 +23,11 @@ char Helper::countBits(char x) {
 int Helper::manhattanDistance(int x1, int y1, int x2, int y2) {
     return static_cast<int>(abs(x1 - x2) + abs(y1 - y2));
 }
+
+std::string Helper::printString(char x, char numberOfBits) {
+    char buffer[numberOfBits];
+    for(char i = 0; i < numberOfBits; i++) {
+        buffer[i] = ((1 << i) & x)? '1': '0';
+    }
+    return std::string(buffer, static_cast<unsigned int>(numberOfBits));
+}

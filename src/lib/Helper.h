@@ -11,9 +11,11 @@
 // Transforms two-dimensional coordinates to one dimensional data
 #define tdtod(x, y, len) ((y * len) + x)
 #include <cmath>
+#include <string>
 
 namespace Helper {
     char countBits(char x);
+    std::string printString(char x, char numberOfBits);
     int manhattanDistance(int x1, int y1, int x2, int y2);
 };
 

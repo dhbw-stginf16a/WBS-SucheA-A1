@@ -10,6 +10,7 @@ class Playground;
 #include <fstream>
 #include <assert.h>
 #include <vector>
+#include <iostream>
 
 class Playground {
 public:

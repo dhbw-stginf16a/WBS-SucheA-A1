@@ -110,25 +110,40 @@ void Playground::calculatePath(int x, int y) {
     if(!this->inField(x, y)) throw std::runtime_error("You started outside the field");
     if(this->isWater(x, y)) throw std::runtime_error("You started in water");
 #endif
-    std::vector<State> allKnownStates;
-    PriorityQueue queue; // Closed list fehlt... TODO
+    std::vector<State> closedList;
+    PriorityQueue openList; // Closed list fehlt... TODO
 
     char artifactOnStart = this->getArtifactOnField(x, y);
     //Don't auto pick up B on the start field
+    State startState;
     if(hasB(artifactOnStart)) {
-        allKnownStates.emplace_back(*this, x, y, 0, 0);
+        startState = State(*this, x, y, 0, 0);
     } else {
-        allKnownStates.emplace_back(*this, x, y, artifactOnStart, 0);
+        startState = State(*this, x, y, artifactOnStart, 0);
     }
-    queue.addState(allKnownStates.back());
+    openList.addState(startState);
 
-    while(!queue.isEmpty()) {
-        State currentState = queue.pop();
+    while(!openList.isEmpty()) {
+        State currentState = openList.pop();
         if(currentState.isFinalState()) {
-            throw std::runtime_error("Found a path to lazy to print it :)");
+            while(!currentState.isSame(startState)) {
+                std::cout << currentState.toString() << "\n";
+                bool foundNext = false;
+                for(State &state : closedList) {
+                    if(state.isParentOf(currentState)) {
+                        currentState = state;
+                        foundNext = true;
+                        break;
+                    }
+                }
+                if(!foundNext) throw std::runtime_error("Couldn't traverse path backwards :(");
+            }
+            std::cout << "Done printing reverse path" << std::endl;
+            return;
         }
 
-        currentState.expand(allKnownStates, queue);
+        currentState.expand(closedList, openList);
+        closedList.push_back(currentState);
     }
     throw std::runtime_error("No Path Found");
 }
@@ -194,7 +209,7 @@ bool Playground::isWater(int x, int y) const {
 bool Playground::isMoveAble(int xFrom, int yFrom, int xTo, int yTo, char artifact) const {
     if(!this->inField(xTo, yTo)) return false;
     if(!this->inField(xFrom, yFrom)) return false;
-    if(!this->isWater(xTo, yTo)) return false;
+    if(this->isWater(xTo, yTo)) return false;
     if(hasB(artifact)) {
         return 0 != this->getLandOnField(xTo, yTo) & this->getLandOnField(xFrom, yFrom);
     }

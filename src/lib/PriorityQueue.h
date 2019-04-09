@@ -11,7 +11,7 @@ public:
     PriorityQueue();
     State pop();
     bool updateStateIfBetter(const State &from);
-    void addState(State& toAdd);
+    void addState(const State& toAdd);
     bool addStateIfBetter(State& toAdd);
     bool isEmpty() const;
 private:
