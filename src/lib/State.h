@@ -8,8 +8,8 @@ class State;
 class State {
 public:
     State();
-    State(const Playground& playground, int x, int y, char artifacts, int g);
-    State(const Playground& playground, int x, int y, char artifacts, int g, const State& previous);
+    State(const Playground& playground, int x, int y, char components, int g);
+    State(const Playground& playground, int x, int y, char components, int g, const State& previous);
     bool isFinalState() const;
     int getPositionInOneD(int len) const;
     int getFullWeight() const;
@@ -20,14 +20,14 @@ public:
     void expand(const std::vector<State>& closedList, PriorityQueue& openList, int x, int y, bool pickUpB);
     std::string toString();
 private:
-    State(const Playground& playground, int x, int y, char artifacts, int g, int xPrev, int yPrev, char prevArtifacts);
+    State(const Playground& playground, int x, int y, char components, int g, int xPrev, int yPrev, char prevComponents);
     const Playground * playground;
     int x, y;
     int xPrev, yPrev;
     // g - shortest known path to this state
     // h - estimation till end from this node
     int g, h = -1;
-    char artifacts, artifactsPrev;
+    char components, componentsPrev;
 };
 
 

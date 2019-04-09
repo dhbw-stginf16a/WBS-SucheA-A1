@@ -21,16 +21,17 @@ char Helper::countBits(char x) {
  * @return The distance between these points in moves
  */
 int Helper::manhattanDistance(int x1, int y1, int x2, int y2) {
-    return static_cast<int>(abs(x1 - x2) + abs(y1 - y2));
+    const int i = static_cast<int>(abs(x1 - x2) + abs(y1 - y2));
+    return i;
 }
 
 /**
- * Prints the Artifacts in human readable
+ * Prints the Components in human readable
  * @param x the
  * @param numberOfBits the number of bits to print
  * @return string with 0 and 1 representing the number
  */
-std::string Helper::printArtifactString(char x, char numberOfBits) {
+std::string Helper::printComponentString(char x, char numberOfBits) {
     char buffer[numberOfBits];
     for(char i = 0; i < numberOfBits; i++) {
         buffer[i] = ((1 << i) & x)? 'A' + i: '_';
@@ -40,12 +41,12 @@ std::string Helper::printArtifactString(char x, char numberOfBits) {
 }
 
 /**
- * Prints the artifact as A, B, C or ' ' if no artifact is present
- * @param x the bitmask of the artifact
- * @return a character to represent the artifact
+ * Prints the component as A, B, C or ' ' if no component is present
+ * @param x the bitmask of the component
+ * @return a character to represent the component
  */
-char Helper::printArtifact(char x) {
-    if(!(x & ARTIFACT_BYTE_MASK)) return ' ';
+char Helper::printComponent(char x) {
+    if(!(x & COMPONENT_BYTE_MASK)) return ' ';
     for(char i = 0; i < 8; i++) {
         if((1 << i) & x) return 'A' + i;
     }
