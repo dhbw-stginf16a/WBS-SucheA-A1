@@ -7,11 +7,11 @@
  * @param inputFile The file name to read the playground of lands in.
  * @param width The width of the playground (amount of fields per line)
  * @param height The height of the playground (amount of lines in file)
- * @param artifact The file to parse for the artifacts per line format of W;x;y with W being A,B or C and x, y being the coordinates from top left of field
+ * @param component The file to parse for the components per line format of W;x;y with W being A,B or C and x, y being the coordinates from top left of field
  */
-Playground::Playground(const std::string &inputFile, int width, int height, const std::string &artifact) : width(width), height(height) {
+Playground::Playground(const std::string &inputFile, int width, int height, const std::string &component) : width(width), height(height) {
     std::ifstream fileStream(inputFile, std::ifstream::in);
-    std::ifstream artifactStream(artifact, std::ifstream::in);
+    std::ifstream componentStream(component, std::ifstream::in);
 
     // Length of one input line * height
     // Two characters per field number and ;
@@ -32,15 +32,15 @@ Playground::Playground(const std::string &inputFile, int width, int height, cons
     }
 
     //Assume that amount of characters to read is less compared to the whole field
-    artifactStream.read(buffer, bytesToRead);
-    std::string lines(buffer, artifactStream.gcount());
+    componentStream.read(buffer, bytesToRead);
+    std::string lines(buffer, componentStream.gcount());
     //ignore first line as it is explaining the file format
     lines = lines.substr(lines.find('\n') + 1, std::string::npos);
     while(lines.size() >= 5) {
-        this->artifacts.emplace_back(std::string(lines));
+        this->components.emplace_back(std::string(lines));
 
-        Artifact& a = artifacts[artifacts.size() - 1];
-        this->field[a.getPositionInOneD(width)] |= shiftArtifact(a.getType());
+        Component& a = components[components.size() - 1];
+        this->field[a.getPositionInOneD(width)] |= shiftComponent(a.getType());
 
         lines = lines.substr(lines.find('\n') + 1, std::string::npos);
     }
@@ -66,84 +66,115 @@ std::string Playground::printField(const std::string &delimField, const std::str
     return output.str();
 }
 
+/**
+ * Prints the field with one cell beeing X(Y) with X being the Land and Y beeing the Component if any
+ * @param delimField
+ * @param delimLine
+ * @param color True if colored output should be given
+ * @return
+ */
+std::string Playground::printFieldFancy(const std::string &delimField, const std::string &delimLine, bool color) {
+    std::stringstream output ("");
+    for (int y = 0; y < height; y++) {
+        for(int x = 0; x < width - 1; x++) {
+            output << (color?Helper::getColorForLand(this->getLandOnField(x, y)):"") << static_cast<char>('0' + this->getLandOnField(x, y)) << "(" << Helper::printComponent(this->getComponentOnField(x, y)) << ");";
+        }
+        output << static_cast<char>('0' + this->getLandOnField(width - 1, y)) << "("<< Helper::printComponent(this->getComponentOnField(width - 1, y)) <<")" << "\n";
+    }
+    return output.str();
+}
+
 Playground::~Playground() {
     delete this->field;
 }
 
 /**
- * Fills all caches in the artifacts with how long the estimate till termination is
+ * Fills all caches in the components with how long the estimate till termination is
  */
 void Playground::fillPathCache() {
-    for(char level = static_cast<char>(Helper::countBits(ARTIFACT_BYTE_MASK) - 2); level >= 0; level--) {
-        for(Artifact& artifact : this->artifacts) {
-            artifact.fillAssumptionToCollect(this->artifacts, level);
+    for(char level = static_cast<char>(Helper::countBits(COMPONENT_BYTE_MASK) - 2); level >= 0; level--) {
+        for(Component& component : this->components) {
+            component.fillAssumptionToCollect(this->components, level);
         }
     }
 }
 
 /**
- * Get the estimation from a specific field, based on the amount of artifacts allready holding
+ * Get the estimation from a specific field, based on the amount of components allready holding
  * @param x Coordinate
  * @param y Coordinate
- * @param artifacts Bitmask with smallest bit being A and 3 Bit representing C
+ * @param components Bitmask with smallest bit being A and 3 Bit representing C
  * @return The estimate till termination in moves needed
  */
-int Playground::getEstimate(int x, int y, char artifacts) const {
+int Playground::getEstimate(int x, int y, char components) const {
 #ifdef _DEBUG
     if(!this->inField(x, y)) throw std::runtime_error("Not in field");
 #endif
     int min = std::numeric_limits<int>::max();
-    for(const Artifact &artifact : this->artifacts) {
-        min = std::min(min, artifact.getEstimate(artifacts, x, y));
+    for(const Component &component : this->components) {
+        min = std::min(min, component.getEstimate(components, x, y));
     }
     return min;
 }
 
 /**
- * Calculate a path from the given start position collecting all artifacts
+ * Calculate a path from the given start position collecting all components
  * @param x
  * @param y
  * @return TBD
  */
 void Playground::calculatePath(int x, int y) {
-#ifdef _DEBUG
     if(!this->inField(x, y)) throw std::runtime_error("You started outside the field");
     if(this->isWater(x, y)) throw std::runtime_error("You started in water");
-#endif
-    std::vector<State> allKnownStates;
-    PriorityQueue queue; // Closed list fehlt... TODO
+    std::vector<State> closedList;
+    PriorityQueue openList; // Closed list fehlt... TODO
 
-    char artifactOnStart = this->getArtifactOnField(x, y);
+    char componentOnStart = this->getComponentOnField(x, y);
     //Don't auto pick up B on the start field
-    if(hasB(artifactOnStart)) {
-        allKnownStates.emplace_back(*this, x, y, 0, 0);
+    State startState;
+    if(hasB(componentOnStart)) {
+        startState = State(*this, x, y, 0, 0);
     } else {
-        allKnownStates.emplace_back(*this, x, y, artifactOnStart, 0);
+        startState = State(*this, x, y, componentOnStart, 0);
     }
-    queue.addState(allKnownStates.back());
+    openList.addState(startState);
 
-    while(!queue.isEmpty()) {
-        State currentState = queue.pop();
+    while(!openList.isEmpty()) {
+        State currentState = openList.pop();
         if(currentState.isFinalState()) {
-            throw std::runtime_error("Found a path to lazy to print it :)");
+            while(!currentState.isSame(startState)) {
+                std::cout << currentState.toString() << "\n";
+                bool foundNext = false;
+                for(State &state : closedList) {
+                    if(state.isParentOf(currentState)) {
+                        currentState = state;
+                        foundNext = true;
+                        break;
+                    }
+                }
+                if(!foundNext) throw std::runtime_error("Couldn't traverse path backwards :(");
+            }
+            std::cout << "Done printing reverse path" << std::endl;
+            return;
         }
 
-        currentState.expand(allKnownStates, queue);
+        currentState.expand(closedList, openList);
+        closedList.push_back(currentState);
     }
     throw std::runtime_error("No Path Found");
 }
 
 /**
- * Get the artifact mask on this specific field
+ * Get the component mask on this specific field
  * @param x x-Cord
  * @param y y-Cord
- * @return The bitmask of the artifact
+ * @return The bitmask of the component
  */
-char Playground::getArtifactOnField(int x, int y) const {
+char Playground::getComponentOnField(int x, int y) const {
 #ifdef _DEBUG
     if(!this->inField(x, y)) throw std::runtime_error("Not in field");
 #endif
-    return getArtifact(this->field[tdtod(x, y, width)]);
+    return getComponent(this->field[tdtod(x, y, width)]);
 }
 
 /**
@@ -183,19 +214,19 @@ bool Playground::isWater(int x, int y) const {
 }
 
 /**
- * Determine if it is possible to move from from to to with artifact holding
+ * Determine if it is possible to move from from to to with component holding
  * @param xFrom
  * @param yFrom
  * @param xTo
  * @param yTo
- * @param artifact
+ * @param component
  * @return true if move is possible
  */
-bool Playground::isMoveAble(int xFrom, int yFrom, int xTo, int yTo, char artifact) const {
+bool Playground::isMoveAble(int xFrom, int yFrom, int xTo, int yTo, char component) const {
     if(!this->inField(xTo, yTo)) return false;
     if(!this->inField(xFrom, yFrom)) return false;
-    if(!this->isWater(xTo, yTo)) return false;
-    if(hasB(artifact)) {
+    if(this->isWater(xTo, yTo)) return false;
+    if(hasB(component)) {
         return 0 != this->getLandOnField(xTo, yTo) & this->getLandOnField(xFrom, yFrom);
     }
     return true;
