@@ -1,7 +1,7 @@
 \documentclass{article}
 \usepackage[english]{babel}
 \usepackage{verbatim}
-\title{Knowledge Based Systems Solution Search A\_A1}
+\title{Knowledge Based Systems Solution Search A1}
 \author{Laura Khaze \& Erik Zeiske}
 \date{10 April 2019}
 \makeatletter
@@ -41,16 +41,16 @@
 %\newpage
 \section{Problem Formulation} \label{problem_formulation}
 The goal of the game \textit{\problem} is to compose a locket. The locket consists of three different components of type A, B and C. To compose the locket a player needs one component of each type. \\
-The components of the locket are spread over the playground which consists of three different lands and some water areas. Within the playground a player can move either left, right, up or down as long as he does not enter a water area. Moreover it is not possible for the player to cross the boarder between land L1 and L2 if a component of type B is in his possession. \\
+The components of the locket are spread over the playground which consists of three different lands and some water areas. Within the playground a player can move either left, right, up or down as long as he does not enter a water area or leave the playground. Moreover it is not possible for the player to cross the border between land L1 and L2 if a component of type B is in his possession. \\
 To solve the given problem, find all components and win the game the $A^*$ algorithm is implemented. \\
 
 \section{Definitions}
-In the following come terminologies are defined to create a common basis for this documentation.
+In the following some terminologies are defined to create a common basis for this documentation.
 \begin{description}
     \item{\textbf{Player}} The individual that moves around in order to find all components of the locket (For visual speaking purposes)
     \item{\textbf{Land}} There are three different lands. A land is either of type L1, L2 or L3.
-    \item{\textbf{Field}} A field is described by an x y position. It is part of exactly one Land or is water. It can either be empty or contain exactly one component.
-    \item{\textbf{Playground}} All fields arranged in a $m x n$ grid
+    \item{\textbf{Field}} A field is described by an x y position whereby x describes the horizontal position while y states the vertical position. It is part of exactly one Land or is water. It can either be empty or contain exactly one component.
+    \item{\textbf{Playground}} All fields arranged in a $m x n$ grid whereby m is the height and n is the width of the playground (start counting at 0).
     \item{\textbf{Components}} A component is either of type A,B or C. At least one copy ($n \geq \ $1) of each type is laying scattered on one field of the playground.
     \item{\textbf{State}\label{definition_state}}  Is a node of the graph to traverse with $A^*$ and is uniquely defined by the x and y position on the field and which components are already collected. 
     This means that a state can be represented as $S(x,y,A,B,C)$ where $x$, $y$ state the x and y coordinates of the associated field the player is currently on and $A, B, C$ weather he is holding the respective components. Thus $S(2,1,0,0,1)$ is the state on which the player is on field $(2,1)$ and holds only the component of Type C.
@@ -66,7 +66,7 @@ In order to implement a solution to the given problem \textit{\problem} it is ne
 
 
 \section{$A^*$ Algorithm}
-To solve the problem formulation given in \ref{problem_formulation} with the $A^*$ algorithm the following points are decided and documented in the following.
+To solve the problem formulation given in \ref{problem_formulation} with the $A^*$ algorithm the following points are decided and documented.
 \begin{comment}
 \begin{itemize}
     \item Development of an graph
@@ -93,21 +93,22 @@ The goal of the implementation is to collect all components. Thus the shortest a
 The shortest distance between two nodes can be determined by the Manhattan distance as the player can only move horizontally and vertically (without consideration of blocked movement due two water or the borders between two lands). Since the distance function equals one for each movement between two nodes ($k(S_1, S_2) = 1$) the Manhattan distance can be used as $h(S)$ to estimate the path between two components.
 This way an optimistic $A^*$ algorithm is ensured, since $h(S) \geq \ h^*(S)$.
 
- For example if the player is already holding A and B the estimation has to take the Manhattan distance to all C components and return the minimum of these distances. Respectfully if no components are held by the player all possible orders of going through the components have to be associated with there respective distances and the shortest is the estimate for the state. As the distance between the components is not changing the estimation from the component fields can be cached (This is further explained in the implementation part). %TODO add reference
+ For example if the player is already holding A and B the estimation has to take the Manhattan distance to all C components and return the minimum of these distances. Respectfully if no components are held by the player all possible orders of going through the components have to be associated with there respective distances and the shortest is the estimate for the state. As the distance between the components is not changing the estimation from the component fields can be cached, see section \ref{estimation_caching_tables}. %TODO add reference
 
 
 \section{Implementation}
 The implementation of the $A^*$ algorithm is realized in C++
 \subsection{Input and Output}
 The implementation requires six inputs and returns the best route as an output.\\
-Example input: \textit{20 20 "data/spielfeld\_1.csv" "data/S11.txt" 0 0}\\
-Example output: \textit{(0,0) - (0,1)}
+Example input: \textit{20 20 "data/spielfeld\_1.csv" "data/S11.txt" 0 0 color}\\
+%Example output: \textit{(0,0) - (0,1)}
 \begin{description}
     \item{\textbf{Input playground size}} The first two input parameters \textit{m n} define the size of the playground $m x n$ whereby m is the height and n is the width of the playground. %grid width, height
-    \item{\textbf{Input playground}} The third input parameter is a csv file with the playground itself. Thereby each land type is represented by one number: L1 is represented by a 1, L2 by 2, L3 by 3 and water by 0. If the given playground is bigger than the size given by the parameters \textit{m n} only size \textit{m n} is realized.
+    \item{\textbf{Input playground}} The third input parameter is a csv file with the playground itself. Thereby each land type is represented by one number: L1 is represented by a 1, L2 by 2, L3 by 3 and water by 0. If the given playground is bigger than the size given by the parameters \textit{m n} a playground of size \textit{m n} is realized.
     \item{\textbf{Input components}} The fourth input parameter is a text file which contains the coordinates of the components in the format \textit{Type;X;Y}.
-    \item{\textbf{Input start position player}} The fifth and sixth parameter set the start coordinates of the player. If the start position of the player is outside of the playground or on a water field an error message is thrown.
-    \item{\textbf{Output route}} The program returns the best route to collect one component of each type as an output. The single fields (x,y coordinates) of the route are printed in the correct order.
+    \item{\textbf{Input start position player}} The fifth (x) and sixth (y) parameter set the start coordinates (x,y) of the player.  If the start position of the player is outside of the playground or on a water field an error message is thrown.
+    \item{\textbf{Input Color}} This parameter can be used to request a colored output. If this parameter is not set the output is plain.
+    \item{\textbf{Output route}} The program returns the best route to collect one component of each type as an output. The single state (x,y coordinates) of the route are printed in the correct order.
 \end{description}
 
 \subsection{Program Structure}
@@ -115,10 +116,10 @@ Since the source code of the program is well annotated only some main ideas and 
 The $A^*$ algorithm is implemented with of four different classes: Component, Playground, PriorityQueue and State as well as the namespace helper. 
 
 \begin{description}
-    \item[Component] Every instance of this class has a type (A, B or C) saved as a bit. A is represented by 001, B by 010 and C by 100. Due to the bit representation it is possible to use a bit mask and use different bit shifting operations. Moreover a caching table is saved within this class, see \textit{\ref{estimation_caching_tables} Estimation Caching Tables}.
+    \item[Component] Every instance of this class has a type (A, B or C) saved as bits. A is represented by 001, B by 010 and C by 100. Due to the bit representation it is possible to use a bit mask and use different bit shifting operations. Moreover a caching table is saved within this class, see \textit{\ref{estimation_caching_tables} Estimation Caching Tables}.
     \item[Playground]
-    \item[PriorityQueue] This is the class used to store the openList for the $A^*$ algorithm. It is possible to store states in a priority queue whereby the state with the smallest sum of g and h is returned by the \textit{pop} function. Since it is not necessary to have a sorted list a heap is used to implement the priority queue. As the source code is written in C++ (memory management) a priority queue which enables the user to update the weight g of the elements later on and rearranges the elements accordingly is preferred. Due to the required functionalities a generic priority queue was not used.
-    \item[State] This class realises the given definition of a state. It stores the x and y coordinates as well as whether or not a component i in the possession of the player ($S(x,y,A,B,C)$). Furthermore the values g and h are stored within the state, whereby g is the shortest known path to the state and h is the estimated distance to a final state ($S(x,y,1,1,1)$).
+    \item[PriorityQueue] This is the class designed to store the openList for the $A^*$ algorithm. It is possible to store states in a priority queue whereby the state with the smallest sum of g and h is returned by the \textit{pop} function. Since it is not necessary to have a sorted list a heap is used to implement the priority queue. As the source code is written in C++ (memory management) a priority queue which enables the user to update the weight g of the elements later on and rearranges the elements accordingly is preferred. Due to the required functionalities a generic priority queue was not used.
+    \item[State] This class realises the given definition of a state ($S(x,y,A,B,C)$). It stores the x and y coordinates as well as whether or not a component i in the possession of the player. Furthermore the values g and h are stored within the state, whereby g is the shortest known path to the state and h is the estimated distance to a final state ($S(x,y,1,1,1)$). The state $S(x,y,A,B,C)$ is the format \textit{(x, y)CBA g=p h=q}).
     \item[Helper] In this namespace some helper functions which do not belong to one specific class are implemented.
 \end{description}
 \begin{comment}
@@ -165,12 +166,12 @@ Since the Manhattan distance is used as an optimistic estimation function the tr
 In order to test the implementation of the \problem x test were designed and performed. The test were performed ten times each to ensure the implementation is deterministic. 
 
 \subsection{Test 1}
-The program is tested with the provided data on a  playground ($20 x 20$) with the start positions (5,3), (15,15) and (19,11).
+The program is tested with the provided data on a  playground ($20 x 20$) with the start positions (5,3)->L1, (15,15)->L3 and (13,19)->water.
 
 
 
 \subsection{Test 2}
-A one dimensional playground ($1 x 7$) where the player has to cross the boarder between L1 and L2 without the component B in order to compose the locket:\\ 
+A one dimensional playground ($1 x 7$) where the player starts on (0,0) and has to cross the border between L1 and L2 without the component B in order to compose the locket:\\ 
 
 \textbf{Playground ($1 x 7$)}
 
