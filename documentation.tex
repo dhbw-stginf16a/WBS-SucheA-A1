@@ -52,11 +52,15 @@ In the following some terminologies are defined to create a common basis for thi
 \begin{description}
     \item{\textbf{Player}} The individual that moves around in order to find all components of the locket (For visual speaking purposes)
     \item{\textbf{Land}} There are three different lands. A land is either of type L1, L2 or L3.
-    \item{\textbf{Field}} A field is described by an x y position whereby x describes the horizontal position while y states the vertical position. It is part of exactly one Land or is water. It can either be empty or contain exactly one component.
+    \item{\textbf{Field}} A field is described by an x y position whereby x describes the horizontal position while y states the vertical position. It is part of exactly one land or is water. It can either be empty or contain exactly one component.
     \item{\textbf{Playground}} All fields arranged in a $m x n$ grid whereby m is the height and n is the width of the playground (start counting at 0).
     \item{\textbf{Components}} A component is either of type A,B or C. At least one copy ($n \geq \ $1) of each type is laying scattered on one field of the playground.
     \item{\textbf{State}\label{definition_state}}  Is a node of the graph to traverse with $A^*$ and is uniquely defined by the x and y position on the field and which components are already collected. 
-    This means that a state can be represented as $S(x,y,A,B,C)$ where $x$, $y$ state the x and y coordinates of the associated field the player is currently on and $A, B, C$ weather he is holding the respective components. Thus $S(2,1,0,0,1)$ is the state on which the player is on field $(2,1)$ and holds only the component of Type C.
+    This means that a state can be represented as $S(x,y,A,B,C)$ where $x$, $y$ state the x and y coordinates of the associated field the player is currently on and $A, B, C$ weather he is holding the respective components. If a variable x,y or A, B, C is notated within a state this means the value in this field can be anything.\\
+    Thus $S(2,1,0,0,1)$ is the state on which the player is on field $(2,1)$ and holds only the component of Type C.
+    \item\textbf{ Distance function $k(S_1, S_2)$} This function is used to determine the shortest distance between two fields.
+    \item \textbf{Estimation function {$h(S)$}} This function is used to estimate the shortest distance to any termination state.
+    \item \textbf{Cost function {$h^*(S)$}} This function determines the actuall shortest distance to any termination state.
 \end{description}
 
 \section{Assumptions}
@@ -88,7 +92,7 @@ In order to define a graph first of all a node (i.e. a state) has to be defined:
 These movements might be blocked if the neighboring field is out site of the playground, the destination field is water or the player tries to cross the border between L1 and L2 (both directions).
 \subsection{Distance function  $k(S_1, S_2)$}
 Since a move between two fields takes one minute every movement state transition is associated with $k(S_1, S_2) = 1$.\\
-As there is no downside to automatically picking up the component A and C, every move to a field containing one of these components will move the player to a state where the respective component is in their possession. In case of a field containing B the move to this field will not automatically pick up the component as it might block movement later on. Thus is is possible to explicitly pick up the component on such a field with no cost to the movement ($k(S(x,y,A,0,C), S(x,y,A,1,C)) = 0$).\\
+As there is no downside to automatically picking up the component A and C, every move to a field containing one of these components will move the player to a state where the respective component is in their possession. In case of a field containing B the move to this field will not automatically pick up the component as it might block movement later on. Thus it is possible to explicitly pick up the component on such a field with no cost to the movement ($k(S(x,y,A,0,C), S(x,y,A,1,C)) = 0$).\\
 All states of the form $S(x,y,1,1,1)$ are terminating states.
 
 \subsection{Estimation function $h(S)$}
@@ -111,18 +115,19 @@ Example input: \textit{20 20 "data/spielfeld\_1.csv" "data/S11.txt" 0 0 color}\\
     \item{\textbf{Input components}} The fourth input parameter is a text file which contains the coordinates of the components in the format \textit{Type;X;Y}.
     \item{\textbf{Input start position player}} The fifth (x) and sixth (y) parameter set the start coordinates (x,y) of the player.  If the start position of the player is outside of the playground or on a water field an error message is thrown.
     \item{\textbf{Input Color}} This parameter can be used to request a colored output. If this parameter is not set the output is plain.
-    \item{\textbf{Output route}} The program returns the best route to collect one component of each type as an output. The single state (x,y coordinates) of the route are printed in the correct order.
+    \item{\textbf{Output route}} The program returns the best route as an output. The single state $S(x,y,A,B,C)$, in the format \textit{(x, y)CBA g=p h=q}), of the route are printed in the reverse order.
 \end{description}
 
 \subsection{Program Structure}
 Since the source code of the program is well annotated only some main ideas and strategies are explained in this section.\\
-The $A^*$ algorithm is implemented with of four different classes: Component, Playground, PriorityQueue and State as well as the namespace helper. 
+The $A^*$ algorithm is implemented with four different classes: Component, Playground, PriorityQueue and State as well as the namespace helper. 
 
 \begin{description}
     \item[Component] Every instance of this class has a type (A, B or C) saved as bits. A is represented by 001, B by 010 and C by 100. Due to the bit representation it is possible to use a bit mask and use different bit shifting operations. Moreover a caching table is saved within this class, see \textit{\ref{estimation_caching_tables} Estimation Caching Tables}.
-    \item[Playground]
-    \item[PriorityQueue] This is the class designed to store the openList for the $A^*$ algorithm. It is possible to store states in a priority queue whereby the state with the smallest sum of g and h is returned by the \textit{pop} function. Since it is not necessary to have a sorted list a heap is used to implement the priority queue. As the source code is written in C++ (memory management) a priority queue which enables the user to update the weight g of the elements later on and rearranges the elements accordingly is preferred. Due to the required functionalities a generic priority queue was not used.
-    \item[State] This class realises the given definition of a state ($S(x,y,A,B,C)$). It stores the x and y coordinates as well as whether or not a component i in the possession of the player. Furthermore the values g and h are stored within the state, whereby g is the shortest known path to the state and h is the estimated distance to a final state ($S(x,y,1,1,1)$). The state $S(x,y,A,B,C)$ is the format \textit{(x, y)CBA g=p h=q}).
+    \item[Playground] This is the main class holding all required objects. It has a list of all components which is used for the estimation calculation. Moreover an array with a bitmask for every field is saved within this class.
+    \item[PriorityQueue] This is the class designed to store the openList for the $A^*$ algorithm. It is possible to store states in a priority queue whereby the state with the smallest sum of g and h is returned by the \textit{pop} function. As the source code is written in C++ it was necessary to implement a own priority queue to update the priority (g + h) later on to avoid constant adding and removing to the priority queue. Since it is not necessary to have a sorted list, a heap is used to implement the priority queue. 
+    %As the source code is written in C++ (memory management) a priority queue which enables the user to update the weight g of the elements later on and rearranges the elements accordingly is preferred. Due to the required functionalities a generic priority queue was not used.
+    \item[State] This class realises the given definition of a state ($S(x,y,A,B,C)$). It stores the x and y coordinates as well as whether or not a component i in the possession of the player. Furthermore the values g and h are stored within the state, whereby g is the shortest known path to the state and h is the estimated distance to a final state ($S(x,y,1,1,1)$).
     \item[Helper] In this namespace some helper functions which do not belong to one specific class are implemented.
 \end{description}
 \begin{comment}
@@ -161,12 +166,12 @@ Each instance of the class component saves its own caching table. In this table 
 \end{center}
 If the component is already in the possession of the player when he enters the field a 1 is saved in the table otherwise a 0. 
 The caching table is filled and saved within the component since, due to the assumption 2, the table will not change. 
-The level is the number of components which are already in the possession of the player. 
+The level is the number of components which are already in the possession of the player, not counting the type of the component the table is saved in. 
 Since the Manhattan distance is used as an optimistic estimation function the triangle equation is true. This enables the calculation of $h(S)$ based on the $h(S)$ value of the next higher level.
 
 
 \section{Testing}
-In order to test the implementation of the \problem x test were designed and performed. The test were performed ten times each to ensure the implementation is deterministic. 
+In order to test the implementation of the \textit{\problem} several tests were designed and performed. The test were performed ten times each to ensure the implementation is deterministic. 
 
 \subsection{Test 1}
 The program is tested on a given playground ($20 x 20$, \textit{spielfeld\_1.csv}) with a given distribution of components (\textit{S11.txt}).\\
@@ -291,8 +296,8 @@ A  playground ($5 x 5$) where the player starts on an island (2,2) and there is 
 
 \section{Evaluation and possible Improvement}
 It is possible to find a shorter and thereby better way to collect all components and thus win the game if assumption 2 would be disregarded. 
-This would increase the expenditure of the implementation tremendously since for example it would prohibit the usage of estimation caching tables as explained in subsection \ref{estimation_caching_tables}.\\
-One lesson learned for the future is the choice of C++ as a programming language. 
-On the end of the implementation it was noticed, that some used c++ features (generating varying size arrays based on runtime variables) is not implemented in the visual studio compiler. Thus it was not possible to generate a executable directly for native windows.
+This would increase the expenditure of the implementation tremendously since for example it would prohibit the usage of estimation caching tables as explained in subsection \ref{estimation_caching_tables}. This is one possible improvement for the future.\\
+%One lesson learned for the future is the choice of C++ as a programming language. 
+%On the end of the implementation it was noticed, that some used c++ features (generating varying size arrays based on runtime variables) is not implemented in the visual studio compiler. Thus it was not possible to generate a executable directly for native windows.
 
 \end{document}
