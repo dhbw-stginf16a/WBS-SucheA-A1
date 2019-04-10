@@ -158,7 +158,7 @@ void State::expand(const std::vector<State> &closedList, PriorityQueue &openList
  */
 std::string State::toString() {
     std::stringstream output ("");
-    output << "(" << xPrev << ", " << yPrev << ") " << Helper::printComponentString(componentsPrev, 3) << "<-" << "(" << x<< ", " << y<< ")" << Helper::printComponentString(
+    output << "(" << xPrev << ", " << yPrev << ") " << Helper::printComponentString(componentsPrev, 3) << "->" << "(" << x<< ", " << y<< ")" << Helper::printComponentString(
             components, 3) << " g=" << g << " h=" << h;
     return output.str();
 }
