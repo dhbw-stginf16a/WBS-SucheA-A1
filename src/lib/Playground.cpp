@@ -16,7 +16,7 @@ Playground::Playground(const std::string &inputFile, int width, int height, cons
     // Length of one input line * height
     // Two characters per field number and ;
     const int bytesToRead = (width*2) * height;
-    char buffer[bytesToRead];
+    char buffer[std::max(bytesToRead, 1000)];
 
     fileStream.read(buffer, bytesToRead);
     int bytesRead = fileStream.gcount();
@@ -32,7 +32,7 @@ Playground::Playground(const std::string &inputFile, int width, int height, cons
     }
 
     //Assume that amount of characters to read is less compared to the whole field
-    componentStream.read(buffer, bytesToRead);
+    componentStream.read(buffer, std::max(bytesToRead, 1000));
     std::string lines(buffer, componentStream.gcount());
     //ignore first line as it is explaining the file format
     lines = lines.substr(lines.find('\n') + 1, std::string::npos);
@@ -79,7 +79,7 @@ std::string Playground::printFieldFancy(const std::string &delimField, const std
         for(int x = 0; x < width - 1; x++) {
             output << (color?Helper::getColorForLand(this->getLandOnField(x, y)):"") << static_cast<char>('0' + this->getLandOnField(x, y)) << "(" << Helper::printComponent(this->getComponentOnField(x, y)) << ");";
         }
-        output << static_cast<char>('0' + this->getLandOnField(width - 1, y)) << "("<< Helper::printComponent(this->getComponentOnField(width - 1, y)) <<")" << "\n";
+        output << (color?Helper::getColorForLand(this->getLandOnField(width - 1, y)):"") << static_cast<char>('0' + this->getLandOnField(width - 1, y)) << "("<< Helper::printComponent(this->getComponentOnField(width - 1, y)) <<")" << "\n";
     }
     return output.str();
 }
@@ -227,7 +227,9 @@ bool Playground::isMoveAble(int xFrom, int yFrom, int xTo, int yTo, char compone
     if(!this->inField(xFrom, yFrom)) return false;
     if(this->isWater(xTo, yTo)) return false;
     if(hasB(component)) {
-        return 0 != this->getLandOnField(xTo, yTo) & this->getLandOnField(xFrom, yFrom);
+        const char l1 = this->getLandOnField(xTo, yTo);
+        const char l2 = this->getLandOnField(xFrom, yFrom);
+        return 0 == !(l1 & l2);
     }
     return true;
 }
