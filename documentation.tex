@@ -1,6 +1,9 @@
 \documentclass{article}
 \usepackage[english]{babel}
 \usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{float}
 \title{Knowledge Based Systems Solution Search A1}
 \author{Laura Khaze \& Erik Zeiske}
 \date{10 April 2019}
@@ -97,7 +100,7 @@ This way an optimistic $A^*$ algorithm is ensured, since $h(S) \geq \ h^*(S)$.
 
 
 \section{Implementation}
-The implementation of the $A^*$ algorithm is realized in C++
+The implementation of the $A^*$ algorithm is realized in C++ and was written on a windows system using msys2 (\url{https://www.msys2.org/}).
 \subsection{Input and Output}
 The implementation requires six inputs and returns the best route as an output.\\
 Example input: \textit{20 20 "data/spielfeld\_1.csv" "data/S11.txt" 0 0 color}\\
@@ -166,13 +169,47 @@ Since the Manhattan distance is used as an optimistic estimation function the tr
 In order to test the implementation of the \problem x test were designed and performed. The test were performed ten times each to ensure the implementation is deterministic. 
 
 \subsection{Test 1}
-The program is tested with the provided data on a  playground ($20 x 20$) with the start positions (5,3)->L1, (15,15)->L3 and (13,19)->water.
+The program is tested on a given playground ($20 x 20$, \textit{spielfeld\_1.csv}) with a given distribution of components (\textit{S11.txt}).\\
+%(5,3)->L1, (15,15)->L3 and (13,19)->water.\\
+\textbf{Playground}:\\
+\begin{figure}[H]
+\includegraphics[width=14cm]{playgroundtest1.jpeg}
+\centering
+\end{figure}
 
+\subsubsection*{Test 1 - start position (5,3)}
+The player starts on a flied of type L1 and is able to find all components. The program determines a route and prints the output in a reserve order. \\
+\textbf{Input}:\\
+\texttt{WBS\_SucheA\_A1.exe 20 20 data/Testing/test1.csv data/Testing/test1.txt 5 3 color}\\
+\textbf{Output}:
+\begin{figure}[H]
+\includegraphics[width=6cm]{start53}
+\centering
+\end{figure}
 
+\subsubsection*{Test 1 - start position (15, 15)}
+The player starts on a flied of type L3 and is able to find all components. The program determines a route and prints the output in a reserve order. \\
+\textbf{Input}:\\
+\texttt{WBS\_SucheA\_A1.exe 20 20 data/Testing/test1.csv data/Testing/test1.txt 15 15 color}\\
+\textbf{Output}:
+\begin{figure}[H]
+\includegraphics[width=6cm]{start1515}
+\centering
+\end{figure}
+
+\subsubsection*{Test 1 - start position (13,19)}
+The player starts on a water field and is not able to find all components, since it is not possible. The program terminates. \\
+\textbf{Input}:\\
+\texttt{WBS\_SucheA\_A1.exe 20 20 data/Testing/test1.csv data/Testing/test1.txt 15 15 color}\\
+\textbf{Output}:
+\begin{figure}[H]
+\includegraphics[width=14cm]{waterstart}
+\centering
+\end{figure}
 
 \subsection{Test 2}
 A one dimensional playground ($1 x 7$) where the player starts on (0,0) and has to cross the border between L1 and L2 without the component B in order to compose the locket:\\ 
-
+\begin{comment}
 \textbf{Playground ($1 x 7$)}
 
 \begin{tabular}{ |c|c|c|c|c|c|c|c|c| } 
@@ -196,15 +233,19 @@ A one dimensional playground ($1 x 7$) where the player starts on (0,0) and has 
  0 & 6 & C \\ 
  \hline
 \end{tabular}
+\end{comment}
 \\
-
-
-1xn über b und zurück
-
+\textbf{Input}:\\
+\texttt{WBS\_SucheA\_A1.exe 1 7 data/Testing/test2.csv data/Testing/test2.txt 0 0 color}\\
+\textbf{Output}:
+\begin{figure}[H]
+\includegraphics[width=14cm]{test2}
+\centering
+\end{figure}
 
 \subsection{Test 3}
-A  playground ($5 x 5$) where the player starts on an island and there is no possible way to collect all components.
-
+A  playground ($5 x 5$) where the player starts on an island (2,2) and there is no possible way to collect all components.
+\begin{comment}
 \textbf{Playground ($5 x 5$)}
 
 \begin{tabular}{ |c|c|c|c|c|c|c| } 
@@ -223,9 +264,6 @@ A  playground ($5 x 5$) where the player starts on an island and there is no pos
  \hline
 \end{tabular}
 \\
-
-
-
 \textbf{Components}
 
 \begin{tabular}{ |c|c|c| } 
@@ -238,12 +276,23 @@ A  playground ($5 x 5$) where the player starts on an island and there is no pos
  3 & 4 & C \\ 
  \hline
 \end{tabular}
+\end{comment}
 \\
+\\
+\textbf{Input}:\\
+\texttt{WBS\_SucheA\_A1.exe 5 5 data/Testing/test3.csv data/Testing/test3.txt 2 2 color}\\
+\textbf{Output}:
+%\end{comment}
+\begin{figure}[H]
+\includegraphics[width=14cm]{test3}
+\centering
+\end{figure}
 
-kein Weg, terminiert?
 
 \section{Evaluation and possible Improvement}
 It is possible to find a shorter and thereby better way to collect all components and thus win the game if assumption 2 would be disregarded. 
-This would increase the expenditure of the implementation tremendously since for example it would prohibit the usage of estimation caching tables as explained in subsection \ref{estimation_caching_tables}.
+This would increase the expenditure of the implementation tremendously since for example it would prohibit the usage of estimation caching tables as explained in subsection \ref{estimation_caching_tables}.\\
+One lesson learned for the future is the choice of C++ as a programming language. 
+On the end of the implementation it was noticed, that some used c++ features (generating varying size arrays based on runtime variables) is not implemented in the visual studio compiler. Thus it was not possible to generate a executable directly for native windows.
 
 \end{document}
